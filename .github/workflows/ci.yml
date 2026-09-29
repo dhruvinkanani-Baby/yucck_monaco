@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      PORT: '4000'
+      MONGO_URI: mongodb://localhost:27017/interncert
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: ci-jwt-secret-must-be-32-chars-min
+      COOKIE_SECRET: ci-cookie-secret-must-be-32-chars
+      FRONTEND_URL: http://localhost:5173
+      RAZORPAY_KEY_ID: rzp_test_ci
+      RAZORPAY_KEY_SECRET: ci_secret
+      RAZORPAY_WEBHOOK_SECRET: ci_webhook
+      RESEND_API_KEY: re_ci
+      CLOUD_STORAGE_KEY: ci_storage
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm audit --production
+      - run: npm run build
