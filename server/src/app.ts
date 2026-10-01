@@ -11,6 +11,7 @@ import cookieParser from 'cookie-parser'
 import { pinoHttp } from 'pino-http'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { logger } from './config/logger.js'
+import { authRouter } from './routes/auth.js'
 
 export const app = express()
 
@@ -57,6 +58,9 @@ app.use(cookieParser(env.COOKIE_SECRET))
 
 // Body parser with 100kb limit
 app.use(express.json({ limit: '100kb' }))
+
+// Mount routes
+app.use('/auth', authRouter)
 
 // Health check endpoint
 app.get('/health', (_req: Request, res: Response) => {
