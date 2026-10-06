@@ -5,6 +5,7 @@ import { TaskSubmission } from './TaskSubmission.js'
 import { Payment } from './Payment.js'
 import { Certificate } from './Certificate.js'
 import { AuditLog } from './AuditLog.js'
+import { WebhookEvent } from './WebhookEvent.js'
 import { logger } from '../config/logger.js'
 
 export interface IndexableModel {
@@ -20,6 +21,7 @@ export const ALL_MODELS: IndexableModel[] = [
   Payment,
   Certificate,
   AuditLog,
+  WebhookEvent,
 ]
 
 /**
