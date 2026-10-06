@@ -13,6 +13,12 @@ async function bootstrap() {
     await redis.ping()
     logger.info('Redis connection verified via ping')
 
+    // In non-production, ensure all indexes are created explicitly at boot
+    if (env.NODE_ENV !== 'production') {
+      const { initAllIndexes } = await import('./models/initIndexes.js')
+      await initAllIndexes()
+    }
+
     const server = app.listen(env.PORT, () => {
       logger.info(
         `[interncert] server listening on port ${env.PORT} in ${env.NODE_ENV} mode`,
