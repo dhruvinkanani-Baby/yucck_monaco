@@ -126,3 +126,35 @@ export interface AuditLogEntry {
   request_id?: string | null
   created_at: string
 }
+
+export interface CreateOrderDTO {
+  internship_id: string
+}
+
+export interface CreateOrderResponse {
+  order_id: string
+  amount: number
+  currency: string
+  key_id: string
+}
+
+export interface VerifyPaymentDTO {
+  razorpay_order_id: string
+  razorpay_payment_id: string
+  razorpay_signature: string
+}
+
+export interface VerifyPaymentResponse {
+  status: string
+  enrollment: EnrollmentPublic
+}
+
+export interface SubmitTaskDTO {
+  enrollment_id: string
+  content: string
+}
+
+export interface ReviewSubmissionDTO {
+  decision: 'approved' | 'rejected'
+  feedback?: string
+}
