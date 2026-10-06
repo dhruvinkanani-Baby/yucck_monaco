@@ -13,6 +13,7 @@ import {
 import { authenticate, requireRole } from '../middleware/auth.js'
 import { csrfProtection } from '../middleware/csrf.js'
 import { requireMfaStepUp } from '../middleware/mfa.js'
+import { validateObjectId } from '../middleware/validateObjectId.js'
 import {
   createInternship,
   updateInternship,
@@ -25,11 +26,17 @@ adminRouter.use(authenticate, requireRole('admin'))
 
 // Submissions review
 adminRouter.get('/submissions/pending', getPendingSubmissions)
-adminRouter.post('/submissions/:id/review', csrfProtection, reviewSubmission)
+adminRouter.post(
+  '/submissions/:id/review',
+  validateObjectId('id'),
+  csrfProtection,
+  reviewSubmission,
+)
 
 // Manual certificate issuance
 adminRouter.post(
   '/enrollments/:id/issue-certificate',
+  validateObjectId('id'),
   csrfProtection,
   issueCertificateForEnrollment,
 )
@@ -41,6 +48,7 @@ adminRouter.post('/mfa/verify', csrfProtection, verifyMfa)
 // High-Risk Endpoints (SEC-15: Requires MFA Step-Up + CSRF Protection)
 adminRouter.post(
   '/certificates/:id/revoke',
+  validateObjectId('id'),
   csrfProtection,
   requireMfaStepUp,
   revokeCertificate,
@@ -48,6 +56,7 @@ adminRouter.post(
 
 adminRouter.post(
   '/payments/:id/refund',
+  validateObjectId('id'),
   csrfProtection,
   requireMfaStepUp,
   refundPayment,
@@ -59,4 +68,9 @@ adminRouter.get('/certificates', getCertificates)
 
 // Internship Management CRUD
 adminRouter.post('/internships', csrfProtection, createInternship)
-adminRouter.put('/internships/:id', csrfProtection, updateInternship)
+adminRouter.put(
+  '/internships/:id',
+  validateObjectId('id'),
+  csrfProtection,
+  updateInternship,
+)

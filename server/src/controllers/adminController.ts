@@ -10,6 +10,7 @@ import { AuditLog } from '../models/AuditLog.js'
 import { enqueueCertificateIssuance } from '../workers/certificateWorker.js'
 import { generateMfaSecret, verifyMfaToken } from '../middleware/mfa.js'
 import { razorpayService } from '../services/razorpay.js'
+import { escapeRegex } from '../utils/regex.js'
 
 // Strict DTO schemas rejecting unknown keys
 const reviewSchema = z
@@ -532,8 +533,18 @@ export async function getAuditLogs(
     const rawLimit = Number(req.query.limit) || 50
     const limit = Math.min(Math.max(1, rawLimit), 100) // Clamped server-side max 100
     const skip = Math.max(0, Number(req.query.skip) || 0)
+    const q = typeof req.query.q === 'string' ? req.query.q.trim() : ''
 
-    const logs = await AuditLog.find()
+    const filter: Record<string, unknown> = {}
+    if (q) {
+      const escaped = escapeRegex(q)
+      filter.$or = [
+        { action: { $regex: escaped, $options: 'i' } },
+        { target_type: { $regex: escaped, $options: 'i' } },
+      ]
+    }
+
+    const logs = await AuditLog.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -572,8 +583,15 @@ export async function getCertificates(
     const rawLimit = Number(req.query.limit) || 50
     const limit = Math.min(Math.max(1, rawLimit), 100) // Clamped max 100
     const skip = Math.max(0, Number(req.query.skip) || 0)
+    const code = typeof req.query.code === 'string' ? req.query.code.trim() : ''
 
-    const certs = await Certificate.find()
+    const filter: Record<string, unknown> = {}
+    if (code) {
+      const escaped = escapeRegex(code)
+      filter.verification_code = { $regex: escaped, $options: 'i' }
+    }
+
+    const certs = await Certificate.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)

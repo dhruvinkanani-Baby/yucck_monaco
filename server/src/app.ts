@@ -128,6 +128,15 @@ export const errorHandler = (
     return
   }
 
+  if (err.name === 'CastError') {
+    res.status(400).json({
+      error: 'invalid_id_format',
+      message: 'Invalid identifier format.',
+      requestId: reqId,
+    })
+    return
+  }
+
   if (err.type === 'entity.too.large' || status === 413) {
     res.status(413).json({
       error: 'payload_too_large',

@@ -4,6 +4,7 @@ import { Internship } from '../models/Internship.js'
 import { Enrollment } from '../models/Enrollment.js'
 import { Certificate } from '../models/Certificate.js'
 import { AuditLog } from '../models/AuditLog.js'
+import { escapeRegex } from '../utils/regex.js'
 
 const createInternshipSchema = z
   .object({
@@ -44,13 +45,23 @@ export async function getPublicInternships(
     const rawLimit = Number(req.query.limit) || 20
     const limit = Math.min(Math.max(1, rawLimit), 100)
     const skip = Math.max(0, Number(req.query.skip) || 0)
+    const q = typeof req.query.q === 'string' ? req.query.q.trim() : ''
 
-    const internships = await Internship.find({ is_active: true })
+    const filter: Record<string, unknown> = { is_active: true }
+    if (q) {
+      const escaped = escapeRegex(q)
+      filter.$or = [
+        { title: { $regex: escaped, $options: 'i' } },
+        { description: { $regex: escaped, $options: 'i' } },
+      ]
+    }
+
+    const internships = await Internship.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
 
-    const total = await Internship.countDocuments({ is_active: true })
+    const total = await Internship.countDocuments(filter)
 
     res.status(200).json({
       total,

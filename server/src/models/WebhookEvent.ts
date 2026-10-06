@@ -13,11 +13,15 @@ const WebhookEventSchema = new Schema<IWebhookEvent>(
       type: String,
       required: true,
       unique: true,
+      trim: true,
+      maxlength: 128,
       index: true,
     },
     event: {
       type: String,
       required: true,
+      trim: true,
+      maxlength: 100,
       index: true,
     },
     payload: {

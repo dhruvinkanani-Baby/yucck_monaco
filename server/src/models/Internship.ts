@@ -76,6 +76,8 @@ const InternshipSchema = new Schema<IInternship>(
       default: 'INR',
       uppercase: true,
       trim: true,
+      maxlength: 10,
+      match: [/^[A-Z]{3,10}$/, 'Invalid currency code format'],
     },
     is_active: {
       type: Boolean,

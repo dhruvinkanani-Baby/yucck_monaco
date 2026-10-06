@@ -26,12 +26,15 @@ const CertificateSchema = new Schema<ICertificate>(
       required: true,
       unique: true,
       trim: true,
+      maxlength: 64,
+      match: [/^[a-fA-F0-9-]{36}$/, 'Invalid verification UUID format'],
       index: true,
     },
     pdf_url: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 2048,
     },
     status: {
       type: String,
@@ -52,6 +55,7 @@ const CertificateSchema = new Schema<ICertificate>(
     revoked_reason: {
       type: String,
       trim: true,
+      maxlength: 1000,
       default: null,
     },
     revoked_by: {
