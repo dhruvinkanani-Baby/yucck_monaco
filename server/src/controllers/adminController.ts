@@ -4,6 +4,7 @@ import { TaskSubmission } from '../models/TaskSubmission.js'
 import { Enrollment } from '../models/Enrollment.js'
 import { Internship } from '../models/Internship.js'
 import { AuditLog } from '../models/AuditLog.js'
+import { enqueueCertificateIssuance } from '../workers/certificateWorker.js'
 
 const reviewSchema = z.object({
   decision: z.enum(['approved', 'rejected']),
@@ -91,6 +92,11 @@ export async function reviewSubmission(
         await Enrollment.findByIdAndUpdate(enrollment._id, {
           completed_at: new Date(),
         })
+        try {
+          await enqueueCertificateIssuance(String(enrollment._id))
+        } catch {
+          // Worker/Redis enqueue failure does not block review response
+        }
       }
     }
 
@@ -153,6 +159,40 @@ export async function getPendingSubmissions(
         content: s.content,
         submitted_at: s.submitted_at.toISOString(),
       })),
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function issueCertificateForEnrollment(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { id } = req.params
+    const enrollment = await Enrollment.findById(id)
+    if (!enrollment) {
+      res.status(404).json({ error: 'enrollment_not_found' })
+      return
+    }
+
+    if (!enrollment.completed_at) {
+      res.status(400).json({
+        error: 'enrollment_not_completed',
+        message:
+          'Cannot issue certificate before all milestones are completed.',
+      })
+      return
+    }
+
+    await enqueueCertificateIssuance(String(enrollment._id))
+
+    res.status(202).json({
+      status: 'queued',
+      message: 'Certificate issuance job enqueued successfully.',
+      enrollment_id: String(enrollment._id),
     })
   } catch (err) {
     next(err)

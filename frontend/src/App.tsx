@@ -6,6 +6,7 @@ import { RegisterPage } from './pages/RegisterPage.js'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage.js'
 import { ResetPasswordPage } from './pages/ResetPasswordPage.js'
 import { DashboardPage } from './pages/DashboardPage.js'
+import { VerifyCertificatePage } from './pages/VerifyCertificatePage.js'
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
               </PublicOnlyRoute>
             }
           />
+          <Route path="/verify/:code" element={<VerifyCertificatePage />} />
           <Route
             path="/"
             element={

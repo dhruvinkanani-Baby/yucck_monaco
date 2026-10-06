@@ -114,6 +114,14 @@ export interface CertificatePublic {
   issued_at: string
 }
 
+export interface VerifyCertificateResponse {
+  valid: boolean
+  verification_code: string
+  student_name: string
+  internship_title: string
+  issued_at: string
+}
+
 export interface AuditLogEntry {
   id: string
   admin_id: string
