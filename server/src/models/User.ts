@@ -8,6 +8,8 @@ export interface IUser extends Document {
   session_version: number
   reset_password_token_hash?: string | null
   reset_password_expires_at?: Date | null
+  totp_secret?: string | null
+  totp_enabled?: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -45,6 +47,14 @@ const UserSchema = new Schema<IUser>(
     reset_password_expires_at: {
       type: Date,
       default: null,
+    },
+    totp_secret: {
+      type: String,
+      default: null,
+    },
+    totp_enabled: {
+      type: Boolean,
+      default: false,
     },
   },
   {

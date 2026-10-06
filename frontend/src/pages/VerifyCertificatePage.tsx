@@ -221,24 +221,39 @@ export function VerifyCertificatePage() {
                       width: '48px',
                       height: '48px',
                       borderRadius: '50%',
-                      backgroundColor: 'rgba(201, 168, 76, 0.15)',
-                      border: '2px solid #C9A84C',
+                      backgroundColor:
+                        certificate.status === 'revoked'
+                          ? 'rgba(239, 68, 68, 0.15)'
+                          : 'rgba(201, 168, 76, 0.15)',
+                      border:
+                        certificate.status === 'revoked'
+                          ? '2px solid #EF4444'
+                          : '2px solid #C9A84C',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: '#C9A84C',
+                      color:
+                        certificate.status === 'revoked'
+                          ? '#EF4444'
+                          : '#C9A84C',
                       fontWeight: 800,
                       fontSize: '1.25rem',
                     }}
                   >
-                    ✓
+                    {certificate.status === 'revoked' ? '✕' : '✓'}
                   </div>
                   <div>
                     <span
                       style={{
                         display: 'inline-block',
-                        backgroundColor: '#064E3B',
-                        color: '#6EE7B7',
+                        backgroundColor:
+                          certificate.status === 'revoked'
+                            ? '#7F1D1D'
+                            : '#064E3B',
+                        color:
+                          certificate.status === 'revoked'
+                            ? '#FCA5A5'
+                            : '#6EE7B7',
                         padding: '0.2rem 0.6rem',
                         borderRadius: '4px',
                         fontSize: '0.75rem',
@@ -247,7 +262,9 @@ export function VerifyCertificatePage() {
                         marginBottom: '0.25rem',
                       }}
                     >
-                      VERIFIED AUTHENTIC
+                      {certificate.status === 'revoked'
+                        ? 'REVOKED'
+                        : 'VERIFIED AUTHENTIC'}
                     </span>
                     <h1
                       style={{
@@ -262,24 +279,48 @@ export function VerifyCertificatePage() {
                   </div>
                 </div>
 
-                <a
-                  href={`${API_BASE_URL}/verify/${certificate.verification_code}/pdf`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                {certificate.status !== 'revoked' && (
+                  <a
+                    href={`${API_BASE_URL}/verify/${certificate.verification_code}/pdf`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      backgroundColor: '#C9A84C',
+                      color: '#0A1628',
+                      textDecoration: 'none',
+                      fontWeight: 700,
+                      fontSize: '0.85rem',
+                      padding: '0.6rem 1.2rem',
+                      borderRadius: '6px',
+                      boxShadow: '0 4px 12px rgba(201,168,76,0.2)',
+                    }}
+                  >
+                    Download PDF
+                  </a>
+                )}
+              </div>
+
+              {certificate.status === 'revoked' && (
+                <div
                   style={{
-                    backgroundColor: '#C9A84C',
-                    color: '#0A1628',
-                    textDecoration: 'none',
-                    fontWeight: 700,
-                    fontSize: '0.85rem',
-                    padding: '0.6rem 1.2rem',
-                    borderRadius: '6px',
-                    boxShadow: '0 4px 12px rgba(201,168,76,0.2)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid #EF4444',
+                    borderRadius: '8px',
+                    padding: '1rem',
+                    color: '#FCA5A5',
+                    marginBottom: '1.5rem',
+                    fontSize: '0.9rem',
                   }}
                 >
-                  Download PDF
-                </a>
-              </div>
+                  <strong>REVOCATION NOTICE:</strong> This certificate was
+                  officially revoked by InternCert.
+                  {certificate.revoked_reason && (
+                    <div style={{ marginTop: '0.35rem' }}>
+                      Reason: {certificate.revoked_reason}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Certificate Details Grid */}
               <div

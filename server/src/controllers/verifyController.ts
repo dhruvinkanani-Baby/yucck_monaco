@@ -48,9 +48,26 @@ export async function verifyCertificate(
       ? user.email.split('@')[0].replace(/[._-]/g, ' ').toUpperCase()
       : 'CERTIFIED SCHOLAR'
 
+    if (cert.status === 'revoked') {
+      res.status(200).json({
+        valid: false,
+        status: 'revoked',
+        verification_code: cert.verification_code,
+        student_name: studentName,
+        internship_title: internship?.title || 'Verified Internship Program',
+        issued_at: cert.issued_at.toISOString(),
+        revoked_at: cert.revoked_at?.toISOString() || null,
+        revoked_reason:
+          cert.revoked_reason ||
+          'Certificate revoked by administrative authority.',
+      })
+      return
+    }
+
     // Minimal public fields per SEC-14
     res.status(200).json({
       valid: true,
+      status: 'valid',
       verification_code: cert.verification_code,
       student_name: studentName,
       internship_title: internship?.title || 'Verified Internship Program',
@@ -81,6 +98,15 @@ export async function downloadCertificatePdf(
     const cert = await Certificate.findOne({ verification_code: trimmedCode })
     if (!cert) {
       res.status(404).json({ error: 'certificate_not_found' })
+      return
+    }
+
+    if (cert.status === 'revoked') {
+      res.status(410).json({
+        error: 'certificate_revoked',
+        message: 'This certificate has been revoked and cannot be downloaded.',
+        revoked_reason: cert.revoked_reason,
+      })
       return
     }
 
