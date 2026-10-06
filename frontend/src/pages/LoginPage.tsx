@@ -18,7 +18,7 @@ export function LoginPage() {
 
     try {
       await login({ email, password })
-      navigate('/', { replace: true })
+      navigate('/dashboard', { replace: true })
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string; message?: string } }
       if (apiErr?.data?.error === 'too_many_requests') {

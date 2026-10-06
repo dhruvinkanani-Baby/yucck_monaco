@@ -13,6 +13,10 @@ import {
 import { authenticate, requireRole } from '../middleware/auth.js'
 import { csrfProtection } from '../middleware/csrf.js'
 import { requireMfaStepUp } from '../middleware/mfa.js'
+import {
+  createInternship,
+  updateInternship,
+} from '../controllers/internshipController.js'
 
 export const adminRouter = Router()
 
@@ -52,3 +56,7 @@ adminRouter.post(
 // Paginated admin telemetry & listings
 adminRouter.get('/audit-logs', getAuditLogs)
 adminRouter.get('/certificates', getCertificates)
+
+// Internship Management CRUD
+adminRouter.post('/internships', csrfProtection, createInternship)
+adminRouter.put('/internships/:id', csrfProtection, updateInternship)

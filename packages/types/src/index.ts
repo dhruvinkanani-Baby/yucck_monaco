@@ -76,6 +76,18 @@ export interface EnrollmentPublic {
   updated_at: string
 }
 
+export interface StudentEnrollmentView extends EnrollmentPublic {
+  internship?: InternshipPublic
+  certificate?: CertificatePublic | null
+}
+
+export interface PlatformMetricsResponse {
+  active_students: number
+  verified_certificates: number
+  industry_programs: number
+  completion_rate: number
+}
+
 export type TaskSubmissionStatus = 'pending' | 'approved' | 'rejected'
 
 export interface TaskSubmissionPublic {
