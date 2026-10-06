@@ -148,3 +148,13 @@ export interface VerifyPaymentResponse {
   status: string
   enrollment: EnrollmentPublic
 }
+
+export interface SubmitTaskDTO {
+  enrollment_id: string
+  content: string
+}
+
+export interface ReviewSubmissionDTO {
+  decision: 'approved' | 'rejected'
+  feedback?: string
+}

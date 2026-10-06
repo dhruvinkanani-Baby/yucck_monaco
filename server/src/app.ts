@@ -14,6 +14,8 @@ import { logger } from './config/logger.js'
 import { authRouter } from './routes/auth.js'
 import { enrollRouter } from './routes/enroll.js'
 import { webhookRouter } from './routes/webhooks.js'
+import { taskRouter } from './routes/tasks.js'
+import { adminRouter } from './routes/admin.js'
 
 export const app = express()
 
@@ -71,6 +73,8 @@ app.use(express.json({ limit: '100kb' }))
 // Mount routes
 app.use('/auth', authRouter)
 app.use('/enroll', enrollRouter)
+app.use('/tasks', taskRouter)
+app.use('/admin', adminRouter)
 
 // Health check endpoint
 app.get('/health', (_req: Request, res: Response) => {
