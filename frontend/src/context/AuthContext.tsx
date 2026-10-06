@@ -5,7 +5,14 @@ import React, {
   useState,
   useCallback,
 } from 'react'
-import type { UserPublic, LoginDTO, RegisterDTO } from '@interncert/types'
+import type {
+  UserPublic,
+  LoginDTO,
+  RegisterDTO,
+  ForgotPasswordDTO,
+  ResetPasswordDTO,
+  GenericResponse,
+} from '@interncert/types'
 import { apiFetch } from '../lib/api.js'
 
 interface AuthContextType {
@@ -15,6 +22,8 @@ interface AuthContextType {
   register: (data: RegisterDTO) => Promise<void>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
+  forgotPassword: (data: ForgotPasswordDTO) => Promise<GenericResponse>
+  resetPassword: (data: ResetPasswordDTO) => Promise<GenericResponse>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -62,6 +71,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const forgotPassword = async (
+    data: ForgotPasswordDTO,
+  ): Promise<GenericResponse> => {
+    return apiFetch<GenericResponse>('/auth/forgot-password', {
+      method: 'POST',
+      data,
+    })
+  }
+
+  const resetPassword = async (
+    data: ResetPasswordDTO,
+  ): Promise<GenericResponse> => {
+    return apiFetch<GenericResponse>('/auth/reset-password', {
+      method: 'POST',
+      data,
+    })
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -71,6 +98,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         logout,
         refreshUser,
+        forgotPassword,
+        resetPassword,
       }}
     >
       {children}
