@@ -1,6 +1,16 @@
+import dns from 'node:dns'
 import mongoose from 'mongoose'
 import { env } from './env.js'
 import { logger } from './logger.js'
+
+// Automatically resolve Atlas SRV records via reliable public DNS on Windows
+if (env.MONGO_URI.startsWith('mongodb+srv://')) {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1'])
+  } catch {
+    // Keep system default if custom servers cannot be set
+  }
+}
 
 interface ConnectOptions {
   maxRetries?: number

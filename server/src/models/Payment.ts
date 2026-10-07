@@ -31,7 +31,6 @@ const PaymentSchema = new Schema<IPayment>(
     razorpay_order_id: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
       maxlength: 100,
     },

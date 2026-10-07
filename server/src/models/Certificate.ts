@@ -19,16 +19,13 @@ const CertificateSchema = new Schema<ICertificate>(
       type: Schema.Types.ObjectId,
       ref: 'Enrollment',
       required: true,
-      unique: true,
     },
     verification_code: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
       maxlength: 64,
       match: [/^[a-fA-F0-9-]{36}$/, 'Invalid verification UUID format'],
-      index: true,
     },
     pdf_url: {
       type: String,
