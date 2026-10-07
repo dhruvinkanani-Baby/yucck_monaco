@@ -24,18 +24,21 @@ const AuditLogSchema = new Schema<IAuditLog>(
       type: String,
       required: true,
       trim: true,
+      maxlength: 100,
       index: true,
     },
     target_type: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 50,
       index: true,
     },
     target_id: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 100,
       index: true,
     },
     before: {
@@ -49,11 +52,13 @@ const AuditLogSchema = new Schema<IAuditLog>(
     ip: {
       type: String,
       trim: true,
+      maxlength: 45,
       default: null,
     },
     request_id: {
       type: String,
       trim: true,
+      maxlength: 100,
       default: null,
       index: true,
     },

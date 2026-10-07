@@ -30,7 +30,7 @@ export function RegisterPage() {
 
     try {
       await register({ email, password })
-      navigate('/', { replace: true })
+      navigate('/dashboard', { replace: true })
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string; message?: string } }
       if (apiErr?.data?.error === 'email_already_registered') {

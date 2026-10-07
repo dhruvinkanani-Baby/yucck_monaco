@@ -16,6 +16,8 @@ import { enrollRouter } from './routes/enroll.js'
 import { webhookRouter } from './routes/webhooks.js'
 import { taskRouter } from './routes/tasks.js'
 import { adminRouter } from './routes/admin.js'
+import { verifyRouter } from './routes/verify.js'
+import { internshipRouter } from './routes/internships.js'
 
 export const app = express()
 
@@ -75,6 +77,8 @@ app.use('/auth', authRouter)
 app.use('/enroll', enrollRouter)
 app.use('/tasks', taskRouter)
 app.use('/admin', adminRouter)
+app.use('/verify', verifyRouter)
+app.use('/internships', internshipRouter)
 
 // Health check endpoint
 app.get('/health', (_req: Request, res: Response) => {
@@ -121,6 +125,15 @@ export const errorHandler = (
   }
 
   if (res.headersSent) {
+    return
+  }
+
+  if (err.name === 'CastError') {
+    res.status(400).json({
+      error: 'invalid_id_format',
+      message: 'Invalid identifier format.',
+      requestId: reqId,
+    })
     return
   }
 

@@ -6,12 +6,15 @@ import { RegisterPage } from './pages/RegisterPage.js'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage.js'
 import { ResetPasswordPage } from './pages/ResetPasswordPage.js'
 import { DashboardPage } from './pages/DashboardPage.js'
+import { LandingPage } from './pages/LandingPage.js'
+import { VerifyCertificatePage } from './pages/VerifyCertificatePage.js'
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route
             path="/login"
             element={
@@ -44,8 +47,9 @@ function App() {
               </PublicOnlyRoute>
             }
           />
+          <Route path="/verify/:code" element={<VerifyCertificatePage />} />
           <Route
-            path="/"
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <DashboardPage />

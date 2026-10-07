@@ -31,19 +31,21 @@ const PaymentSchema = new Schema<IPayment>(
     razorpay_order_id: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
+      maxlength: 100,
     },
     razorpay_payment_id: {
       type: String,
       default: null,
       trim: true,
+      maxlength: 100,
       index: true,
       sparse: true,
     },
     razorpay_signature: {
       type: String,
       default: null,
+      maxlength: 255,
     },
     amount: {
       type: Number,
@@ -56,6 +58,8 @@ const PaymentSchema = new Schema<IPayment>(
       default: 'INR',
       uppercase: true,
       trim: true,
+      maxlength: 10,
+      match: [/^[A-Z]{3,10}$/, 'Invalid currency code format'],
     },
     status: {
       type: String,

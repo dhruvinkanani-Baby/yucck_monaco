@@ -4,6 +4,7 @@ import mongoose from 'mongoose'
 import { Payment } from '../models/Payment.js'
 import { Enrollment, type IEnrollment } from '../models/Enrollment.js'
 import { Internship } from '../models/Internship.js'
+import { Certificate } from '../models/Certificate.js'
 import { razorpayService } from '../services/razorpay.js'
 import { env } from '../config/env.js'
 import { logger } from '../config/logger.js'
@@ -288,6 +289,80 @@ export async function verifyEnrollmentPayment(
       })
       return
     }
+    next(err)
+  }
+}
+
+export async function getMyEnrollments(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const userId = req.user?._id
+    if (!userId) {
+      res.status(401).json({ error: 'unauthorized' })
+      return
+    }
+
+    const enrollments = await Enrollment.find({ user_id: userId })
+      .sort({ createdAt: -1 })
+      .populate('internship_id')
+
+    const enrollmentIds = enrollments.map((e) => e._id)
+    const certificates = await Certificate.find({
+      enrollment_id: { $in: enrollmentIds },
+    })
+    const certMap = new Map(
+      certificates.map((c) => [c.enrollment_id.toString(), c]),
+    )
+
+    res.status(200).json({
+      enrollments: enrollments.map((e) => {
+        const cert = certMap.get(e._id.toString())
+        const internship = e.internship_id as unknown as {
+          _id: unknown
+          title: string
+          description: string
+          tasks: unknown[]
+          price: number
+          currency: string
+        }
+        return {
+          id: String(e._id),
+          user_id: String(e.user_id),
+          internship_id: String(internship?._id || e.internship_id),
+          status: e.status,
+          current_task: e.current_task,
+          start_date: e.start_date.toISOString(),
+          end_date: e.end_date.toISOString(),
+          completed_at: e.completed_at?.toISOString() || null,
+          created_at: e.createdAt.toISOString(),
+          updated_at: e.updatedAt.toISOString(),
+          internship: internship
+            ? {
+                id: String(internship._id),
+                title: internship.title,
+                description: internship.description,
+                tasks: internship.tasks,
+                price: internship.price,
+                currency: internship.currency,
+              }
+            : undefined,
+          certificate: cert
+            ? {
+                id: String(cert._id),
+                enrollment_id: String(cert.enrollment_id),
+                verification_code: cert.verification_code,
+                pdf_url: cert.pdf_url,
+                status: cert.status,
+                issued_at: cert.issued_at.toISOString(),
+              }
+            : null,
+        }
+      }),
+    })
+  } catch (err) {
     next(err)
   }
 }

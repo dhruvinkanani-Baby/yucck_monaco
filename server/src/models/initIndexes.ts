@@ -39,7 +39,20 @@ export async function initAllIndexes(): Promise<void> {
         { model: model.modelName },
         'Model indexes synchronized successfully',
       )
-    } catch (err) {
+    } catch (err: unknown) {
+      // Code 85: Index already exists with a different name on existing MongoDB Atlas cluster
+      if (
+        err &&
+        typeof err === 'object' &&
+        'code' in err &&
+        (err as { code: number }).code === 85
+      ) {
+        logger.warn(
+          { model: model.modelName },
+          'Model index already exists with existing name, continuing cleanly',
+        )
+        continue
+      }
       logger.error(
         { model: model.modelName, err },
         'Failed to synchronize model indexes',

@@ -3,10 +3,12 @@ import { z } from 'zod'
 import { Enrollment } from '../models/Enrollment.js'
 import { Internship } from '../models/Internship.js'
 import { TaskSubmission } from '../models/TaskSubmission.js'
+import { validateSafeUrl } from '../utils/sanitize.js'
 
 const submitTaskSchema = z.object({
   enrollment_id: z.string().min(1),
   content: z.string().trim().min(5).max(10000),
+  submission_url: z.string().trim().optional(),
 })
 
 export async function submitTask(
@@ -24,7 +26,34 @@ export async function submitTask(
       return
     }
 
-    const { enrollment_id, content } = parseResult.data
+    const { enrollment_id, content, submission_url } = parseResult.data
+
+    // SEC-07: Reject unsafe submission URLs (e.g., javascript:...linkedin.com)
+    if (submission_url) {
+      const urlCheck = validateSafeUrl(submission_url)
+      if (!urlCheck.valid) {
+        res.status(400).json({
+          error: 'invalid_submission_url',
+          message: urlCheck.error,
+        })
+        return
+      }
+    }
+
+    // SEC-07: Reject embedded pseudo-protocol script injections in content
+    const contentWithoutWs = content.replace(/\s+/g, '').toLowerCase()
+    if (
+      contentWithoutWs.includes('javascript:') ||
+      contentWithoutWs.includes('vbscript:') ||
+      contentWithoutWs.includes('data:text/html')
+    ) {
+      res.status(400).json({
+        error: 'unsafe_script_scheme',
+        message:
+          'Submissions containing unsafe script or pseudo-protocol URIs are prohibited.',
+      })
+      return
+    }
     const userId = req.user?._id
 
     if (!userId) {
@@ -117,11 +146,15 @@ export async function submitTask(
     }
 
     // Create TaskSubmission { status: "pending" }
+    const savedContent = submission_url
+      ? `${content}\n\nSubmission Link: ${submission_url}`
+      : content
+
     const submission = await TaskSubmission.create({
       enrollment_id: enrollment._id,
       task_number: currentTaskNumber,
       status: 'pending',
-      content,
+      content: savedContent,
       submitted_at: now,
     })
 

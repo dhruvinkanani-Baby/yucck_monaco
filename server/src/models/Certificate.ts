@@ -4,7 +4,11 @@ export interface ICertificate extends Document {
   enrollment_id: mongoose.Types.ObjectId
   verification_code: string
   pdf_url: string
+  status: 'valid' | 'revoked'
   issued_at: Date
+  revoked_at?: Date | null
+  revoked_reason?: string | null
+  revoked_by?: mongoose.Types.ObjectId | null
   createdAt: Date
   updatedAt: Date
 }
@@ -15,24 +19,46 @@ const CertificateSchema = new Schema<ICertificate>(
       type: Schema.Types.ObjectId,
       ref: 'Enrollment',
       required: true,
-      unique: true,
     },
     verification_code: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
-      index: true,
+      maxlength: 64,
+      match: [/^[a-fA-F0-9-]{36}$/, 'Invalid verification UUID format'],
     },
     pdf_url: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 2048,
+    },
+    status: {
+      type: String,
+      enum: ['valid', 'revoked'],
+      default: 'valid',
+      required: true,
+      index: true,
     },
     issued_at: {
       type: Date,
       default: Date.now,
       required: true,
+    },
+    revoked_at: {
+      type: Date,
+      default: null,
+    },
+    revoked_reason: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
+      default: null,
+    },
+    revoked_by: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
     },
   },
   {

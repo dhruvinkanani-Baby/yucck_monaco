@@ -8,6 +8,8 @@ export interface IUser extends Document {
   session_version: number
   reset_password_token_hash?: string | null
   reset_password_expires_at?: Date | null
+  totp_secret?: string | null
+  totp_enabled?: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -20,11 +22,14 @@ const UserSchema = new Schema<IUser>(
       unique: true,
       lowercase: true,
       trim: true,
+      maxlength: 254,
+      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email address format'],
       index: true,
     },
     password_hash: {
       type: String,
       required: true,
+      maxlength: 255,
     },
     role: {
       type: String,
@@ -40,11 +45,21 @@ const UserSchema = new Schema<IUser>(
     reset_password_token_hash: {
       type: String,
       default: null,
+      maxlength: 128,
       index: true,
     },
     reset_password_expires_at: {
       type: Date,
       default: null,
+    },
+    totp_secret: {
+      type: String,
+      default: null,
+      maxlength: 128,
+    },
+    totp_enabled: {
+      type: Boolean,
+      default: false,
     },
   },
   {

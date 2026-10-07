@@ -76,6 +76,18 @@ export interface EnrollmentPublic {
   updated_at: string
 }
 
+export interface StudentEnrollmentView extends EnrollmentPublic {
+  internship?: InternshipPublic
+  certificate?: CertificatePublic | null
+}
+
+export interface PlatformMetricsResponse {
+  active_students: number
+  verified_certificates: number
+  industry_programs: number
+  completion_rate: number
+}
+
 export type TaskSubmissionStatus = 'pending' | 'approved' | 'rejected'
 
 export interface TaskSubmissionPublic {
@@ -106,12 +118,47 @@ export interface PaymentPublic {
   updated_at: string
 }
 
+export type CertificateStatus = 'valid' | 'revoked'
+
 export interface CertificatePublic {
   id: string
   enrollment_id: string
   verification_code: string
   pdf_url: string
+  status: CertificateStatus
   issued_at: string
+  revoked_at?: string | null
+  revoked_reason?: string | null
+}
+
+export interface VerifyCertificateResponse {
+  valid: boolean
+  verification_code: string
+  student_name: string
+  internship_title: string
+  issued_at: string
+  status?: CertificateStatus
+  revoked_reason?: string | null
+  pdf_url?: string
+}
+
+export interface MfaSetupResponse {
+  secret: string
+  qr_code: string
+  uri: string
+}
+
+export interface MfaVerifyDTO {
+  totp_code: string
+}
+
+export interface RevokeCertificateDTO {
+  reason: string
+}
+
+export interface RefundPaymentDTO {
+  amount?: number
+  reason?: string
 }
 
 export interface AuditLogEntry {
