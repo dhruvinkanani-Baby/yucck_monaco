@@ -10,6 +10,9 @@
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "db:init-indexes": "tsx src/scripts/initIndexes.ts",
+    "db:backup-drill": "tsx src/scripts/backupRestoreDrill.ts",
+    "test:load": "tsx src/scripts/loadTestVerification.ts",
+    "test:release-gate": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config jest.config.cjs src/routes/releaseGate.test.ts",
     "test": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config jest.config.cjs"
   },
   "dependencies": {
